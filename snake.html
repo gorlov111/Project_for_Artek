@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Змейка обучающая</title>
+  <style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    background: #88B866;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    zoom: 200%;
+  }
+  canvas {
+    border: 1px solid white;
+  }
+  #game{
+      background-image: url(19908641.jpg)
+  }
+  </style>
+</head>
+<body>
+<canvas width="400" height="400" id="game">
+</canvas>
+<script>
+var text = "Переходить пути только под прямым углом не наступая на рельс\nНельзя высовываться из движущегося подвижного состава\nНельзя играть вблизи железнодорожных путей\nТы находишься рядом с железнодорожными путями, тогда сними наушники и посмотри по сторонам\nНа железнодорожной платформе не заходи за ограничительную линию\nНе перебегай пути вблизи перед движущимся подвижным составом\nПри переходе через железнодорожные пути убедись, что нет приближающегося подвижного состава\nНельзя забираться на крышу подвижного состава\nНельзя вставать на приступку движущегося вагона\n";
+var index_mas;
+var source_text = "Переходить пути только под прямым углом не наступая на рельс;Нельзя высовываться из движущегося подвижного состава;Нельзя играть вблизи железнодорожных путей;Ты находишься рядом с железнодорожными путями, тогда сними наушники и посмотри по сторонам;На железнодорожной платформе не заходи за ограничительную линию;Не перебегай пути вблизи перед движущимся подвижным составом;При переходе через железнодорожные пути убедись, что нет приближающегося подвижного состава;Нельзя забираться на крышу подвижного состава;Нельзя вставать на приступку движущегося вагона;Переходи железнодорожные пути только в установленных местах (специальных настилах, виадуках, переходах);Переходи дорогу только на зеленый сигнал светофора;При переходе дороги по зебре убедись, что все идущие автомобили остановились, только тогда переходи дорогу;Не входи в подъезд, лифт с посторонними лицами;При возможности не входи в лифт, а поднимись по лестнице;Нельзя включать электрические приборы, вставлять в розетку посторонние приборы;При возникновении пожара вблизи тебя, закрой все окна и двери. Намочи полотенце или тряпку водой и приложи на лицо. Опустись на пол;При возникновении пожара на расстоянии, возьми документы, закрой все окна и двери, спускайся по лестнице;Не открывай двери квартиры посторонним лицам под любым предлогом;В общеобразовательной школе нельзя бегать по коридорам;В общеобразовательной школе во время приема пищи нельзя размахивать столовыми приборами;"
+var canvas = document.getElementById('game');
+var context = canvas.getContext('2d');
+
+var grid = 16;
+var count = 0;
+  
+var snake = {
+  x: 160,
+  y: 160,
+  
+  dx: grid,
+  dy: 0,
+  
+  cells: [],
+  
+  maxCells: 4
+};
+var apple = {
+  x: 320,
+  y: 320
+};
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function loop() {
+
+  requestAnimationFrame(loop);
+
+  if (++count < 6) { //Скорость *низкая **Количество кадров = 60/6
+    return;
+  }
+
+  count = 0;
+  context.clearRect(0,0,canvas.width,canvas.height);
+
+  snake.x += snake.dx;
+  snake.y += snake.dy;
+
+  if (snake.x < 0) {
+    snake.x = canvas.width - grid;
+  }
+  else if (snake.x >= canvas.width) {
+    snake.x = 0;
+  }
+  
+  if (snake.y < 0) {
+    snake.y = canvas.height - grid;
+  }
+  else if (snake.y >= canvas.height) {
+    snake.y = 0;
+  }
+
+  snake.cells.unshift({x: snake.x, y: snake.y});
+
+  if (snake.cells.length > snake.maxCells) {
+    snake.cells.pop();
+  }
+
+
+  context.fillStyle = '#A31E41';
+  context.fillRect(apple.x, apple.y, grid-1, grid-1);
+
+  context.fillStyle = '#60AC2E';
+  snake.cells.forEach(function(cell, index) {
+    
+    context.fillRect(cell.x, cell.y, grid-1, grid-1);  
+
+    if (cell.x === apple.x && cell.y === apple.y) { //Змейка кушает
+      snake.maxCells++;
+
+      alert("Для продолжения игры прочитай текст!\n\nПосле закрытия вы автоматически перейдёте на сайт где нужно ответить на тест по тексту\n\n------------------------------------------------------------------\n" + text + "\n------------------------------------------------------------------");
+
+      console.log("-Яблоко съедено!");
+      console.log("-Переадрсовка на https://forms.gle/8rdCzbzuSLU7rynS7!");
+      document.location.href = "https://forms.gle/8rdCzbzuSLU7rynS7";
+      apple.x = getRandomInt(0, 25) * grid;
+      apple.y = getRandomInt(0, 25) * grid;
+    }
+
+    for (var i = index + 1; i < snake.cells.length; i++) {
+      
+      if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+        snake.x = 160;
+        snake.y = 160;
+        snake.cells = [];
+        snake.maxCells = 4;
+        snake.dx = grid;
+        snake.dy = 0;
+
+        apple.x = getRandomInt(0, 25) * grid;
+        apple.y = getRandomInt(0, 25) * grid;
+      }
+    }
+  });
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.which === 37 && snake.dx === 0) {
+    snake.dx = -grid;
+    snake.dy = 0;
+  }
+  else if (e.which === 38 && snake.dy === 0) {
+    snake.dy = -grid;
+    snake.dx = 0;
+  }
+
+  else if (e.which === 39 && snake.dx === 0) {
+    snake.dx = grid;
+    snake.dy = 0;
+  }
+
+  else if (e.which === 40 && snake.dy === 0) {
+    snake.dy = grid;
+    snake.dx = 0;
+  }
+});
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
